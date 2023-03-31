@@ -4,13 +4,13 @@ Sophie is a chatbot that you can speak with and she will speak back using severa
 
 ## How to run
 
-1. Clone this repository <br>
+1. Clone this repository. <br>
     ```git clone https://github.com/caelanhadley/sophie-gpt.git```
 
-2. Install the requirements <br>
+2. Install the requirements.<br>
     ```pip install -r requirements.txt```
 
-3. Create OpenAI and Microsoft Azure accounts
+3. Create OpenAI and Microsoft Azure accounts.
    - OpenAI account should be straight forward.
    - The Azure account is more complicated, after creating an account you will needs to create a speech resource.
    - After creating a speech resource go to you overview to access your API key and region.<br>
@@ -18,7 +18,7 @@ Sophie is a chatbot that you can speak with and she will speak back using severa
     ```key_azure``` your Microsoft Azure API key.<br>
     ```key_region``` the region your azure service is located. (example: "eastus")<br>
     ```key_openai``` your OpenAI API key.<br>
-5. Run the program (Use command prompt to excute)<br>
+5. Run the program.<br>
     ```python main.py```<br>
 6. To begin the conversation say "hey sophie" after that the conversation will not require you to say this phrase. The conversation in its current state will run until you terminate the program.
 
@@ -32,3 +32,4 @@ Sophie is a chatbot that you can speak with and she will speak back using severa
 
 - Having other issues?
   - Open a ticket on github and I'll try to help you toubleshoot any issues and bugs you encounter.
+  - If you are having an issue with the API keys remember **NEVER** publicly post or share your API keys!
