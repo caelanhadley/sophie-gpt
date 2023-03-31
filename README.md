@@ -1,6 +1,6 @@
 # SOPHIE
 
-Sophie is a chatbot that you can speak with and she will speak back! Using several APIs and through some custom prompting it is also possible for this chatbot to speak with varying tones and emotions. This means that sophie can be mad, happy, and more all within the same response. If you want to see an example of this for yourself ask sophie to tell you a story that starts sad, becomes angry, and ends happily. I hope this program makes AI more accessible and engaging for you! You are free to modify, copy, and redistribute this code so please tinker with it and see what you can create!
+    Sophie is a chatbot that you can speak with and she will speak back! Using several APIs and through some custom prompting it is also possible for this chatbot to speak with varying tones and emotions. This means that sophie can be mad, happy, and more all within the same response. If you want to see an example of this for yourself ask sophie to tell you a story that starts sad, becomes angry, and ends happily. I hope this program makes AI more accessible and engaging for you! You are free to modify, copy, and redistribute this code so please tinker with it and see what you can create!
 
 ## How to run
 
