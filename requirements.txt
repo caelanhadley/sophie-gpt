@@ -1,0 +1,4 @@
+speechrecognition
+openai
+numpy
+azure-cognitiveservices-speech

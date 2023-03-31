@@ -1,17 +1,6 @@
 ########################################################
 # Code and comments written by Caelan Hadley (c) 2023. #
 ########################################################
-# NOTE: For this program to work you must include 3
-#   files.
-#   > Azure API key containing your API key,
-#   > Region key that is the region where your service
-#   is being hosted.
-#   > OpenAI API key.
-# The files that should be included respectivly are:
-#   > key_azure
-#   > key_region
-#   > key_openai
-########################################################
 print("Load times may vary, please be patient as everything is loading. Thank you!\n")
 
 sys_prompts = ["", ""]
