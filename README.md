@@ -29,3 +29,6 @@ Sophie is a chatbot that you can speak with and she will speak back using severa
   - Make sure your microphone is not muted and the recording volume is turned up.
 - API is not working / Requests not working
   - if the requests to the API are not working make sure that your api keys are correct in the ```key_azure```, ```key_region```, and ```key_openai``` files.
+
+- Having other issues?
+  - Open a ticket on the github and I'll try to help you toubleshoot any issues and bugs you encounter.
