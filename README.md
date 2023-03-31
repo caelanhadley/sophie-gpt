@@ -1,6 +1,6 @@
 # SOPHIE
 
-Sophie is a chatbot that you can speak with and she will speak back using several APIs and some custom prompting to GPT. It is also possible for this chatbot to speak with varying tones and emotions.
+Sophie is a chatbot that you can speak with and she will speak back using several APIs. Through some custom prompting it is also possible for this chatbot to speak with varying tones and emotions.
 
 ## How to run
 
