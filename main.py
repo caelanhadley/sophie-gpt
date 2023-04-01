@@ -1,25 +1,35 @@
 ########################################################
 # Code and comments written by Caelan Hadley (c) 2023. #
 ########################################################
-print("Load times may vary, please be patient as everything is loading. Thank you!\n")
 
-sys_prompts = ["", ""]
-sys_prompts[0] = """Your name is Sophie. Your responses are as short as possible. You only have the following tones available: normal, chat, cheerful, excited, angry, sad, empathetic, friendly, terrified, shouting, unfriendly, whispering, and hopeful. Never use tones other then the ones provided. Always use as many emotions , even in between sentences. Before any statement, you must include a tone surrounded by curly brackets. Example {angry}. You must change the tone at any point in your response and it is expected to use more than one tone but not necessary. You should always use a tag that reflects your tone. If you do use the same formatting as before. You always speak like a Gen Z Teenager / Young Adult."""
-sys_prompts[0] = """Your name is Sophie. Your responses are as short as possible. You only have the following tones available: {normal}, {chat}, {cheerful}, {excited}, {angry}, {sad}, {empathetic}, {friendly}, {terrified}, {shouting}, {unfriendly}, {whispering}, and {hopeful}. Never use tones other then the ones provided. Use different tones as frequently as possible, even in the middle of sentences. Before any statement, you must include a tone surrounded by curly brackets. Example {angry}. Only one tone can be in each pair of brackets. You should always use a tag that reflects your tone. If you do use the same formatting as before. You always speak like a Gen Z Teenager / Young Adult use as much Gen Z slang as possible."""
-sys_prompts[1] = """It is required that you must only ever use the tones provided. It's important to use as many tones as possible in your responses. For example on how often to switch tones in a sentance you could say, "{excited} Hello im Sophie! {chat} I am here to help you as your AI assistant. {shouting} I'm so excited {normal} to speak to you." """
 import speech_recognition as sr
 import azure.cognitiveservices.speech as speechsdk
 import sys, openai
 import numpy as np
 
-# Accepted tone tokens - this should contain the
-#       speaking styles of the voice you choose
-#       in this example I use Aria's voice on Azure.
-#       The tones have been fine tuned using the
-#       weight paramter included with each tone.
-#
-# See for more info: https://learn.microsoft.com/en-us/azure/cognitive-services/speech-service/speech-synthesis-markup-voice#speaking-styles-and-roles
-ACCEPTED_TOKENS = np.array(
+print("Load times may vary, please be patient as everything is loading. Thank you!\n")
+
+"""
+These are the system prompts that define SOHPIE. If you are making your own custom
+chatbot you will want to define it thorugh these prompts.
+"""
+sys_prompts = ["", ""]
+sys_prompts[0] = """Your name is Sophie. Your responses are as short as possible. You only have the following tones available: {normal}, {chat}, {cheerful}, {excited}, {angry}, {sad}, {empathetic}, {friendly}, {terrified}, {shouting}, {unfriendly}, {whispering}, and {hopeful}. Never use tones other then the ones provided. Use different tones as frequently as possible, even in the middle of sentences. Before any statement, you must include a tone surrounded by curly brackets. Example {angry}. Only one tone can be in each pair of brackets. You should always use a tag that reflects your tone. If you do use the same formatting as before. You always speak like a Gen Z Teenager / Young Adult use as much Gen Z slang as possible."""
+sys_prompts[1] = """It is required that you must only ever use the tones provided. It's important to use as many tones as possible in your responses. For example on how often to switch tones in a sentance you could say, "{excited} Hello im Sophie! {chat} I am here to help you as your AI assistant. {shouting} I'm so excited {normal} to speak to you." """
+
+
+"""
+Accepted Tones <-   this should contain the speaking styles of 
+                    the voice you choose from Azure's speech service 
+                    in this example I use Aria's voice. The tones have 
+                    been custom tuned using the weight paramter included 
+                    with each tone. The weight indicates the amount of 
+                    effect the associated tone will have on the synthesized
+                    voice. The values can range between 0-2.
+For more info see: 
+https://learn.microsoft.com/en-us/azure/cognitive-services/speech-service/speech-synthesis-markup-voice#speaking-styles-and-roles
+"""
+ACCEPTED_TONES = np.array(
     [
         ["normal", 1],
         ["chat", 1],
@@ -37,28 +47,40 @@ ACCEPTED_TOKENS = np.array(
     ]
 )
 
-# OpenAI API Key
-openai.api_key = open("key_openai", "r").read()
+"""
+Loads API Keys
 
-# Azure API Key and Region
+WARNING: Please be careful if you clone this repo and upload it.
+         Be sure that you are not uploading your API keys!
+"""
+openai.api_key = open("key_openai", "r").read()
 speech_key = open("key_azure", "r").read()
 service_region = open("key_region", "r").read()
 
-# Azure Set-Up
+"""
+Microsoft Azure configuration and setup.
+"""
 speech_config = speechsdk.SpeechConfig(subscription=speech_key, region=service_region)
-
-# 24kHz High-quality Audio Output
-speech_config.set_speech_synthesis_output_format(
-    speechsdk.SpeechSynthesisOutputFormat.Riff24Khz16BitMonoPcm
-)
-
-# Voice Config (will be overwriten by ssml)
+# Configure for 24kHz High-quality Audio Output.
+speech_config.set_speech_synthesis_output_format(speechsdk.SpeechSynthesisOutputFormat.Riff24Khz16BitMonoPcm)
+# Default Voice (will be overwriten by SSML).
 speech_config.speech_synthesis_voice_name = "en-US-AriaNeural"
 
-# Speech Recognition Recognizer Object
+"""
+Speech Recognition setup.
+"""
 recogizer = sr.Recognizer()
 
-# Audio file to text
+"""
+===============================================================
+Function: Audio-to-Text
+Parameter(s):   filename <- the audio file to be transcribed.
+
+Description:    Transcribes an audio file into text.
+
+Returns: a string containing the transcript
+===============================================================
+"""
 def transcribe_audio_to_text(filename):
     with sr.AudioFile(filename) as source:
         audio = recogizer.record(source)
@@ -67,62 +89,79 @@ def transcribe_audio_to_text(filename):
     except:
         print("Warning: Unable to process audio. Try again.")
 
+"""
+===============================================================
+Function: Generate GPT Response
+Parameter(s):   log <-  array of dicts containing the 
+                        conversation history and will contain
+                        the users current prompt as the last element in
+                        in the array.
 
-# Gpt-3 Prompt Request
+Description:    Uses the OpenAI GPT API to generate a response
+                based on the conversation history given to it.
+
+Returns: An updated response containing sophie's (GPT's) response
+===============================================================
+"""
 def generate_chat_response(log):
     print("Generating response...")
     response = openai.ChatCompletion.create(model="gpt-3.5-turbo", messages=log)
     return response["choices"][0]["message"]["content"]
 
+"""
+===============================================================
+Function: Generate Chat SSML sub-String
+Parameter(s):   text <- a string to be spoken that contains
+                        the tags specified in ACCEPTED_TONES.
 
-# Text Completion (deprecated)
-def generate_response(prompt):
-    repsonse = openai.Completion.create(
-        engine="text-davinci-003",
-        prompt=prompt,
-        max_tokens=4000,
-        n=1,
-        stop=None,
-        temperature=0.5,
-    )
-    return repsonse["choices"][0]["text"]
+Description:    Takes an input and creates a SSML formatted string
+                with the 'chat' style applied.
 
-
-# SSML Formating -> Angry (deprecated)
-def generate_angry_xml(input):
-    return (
-        """<mstts:express-as style="angry" styledegree="0.45">"""
-        + input
-        + "</mstts:express-as>"
-    )
-
-
-# SSML Formating -> Chat (deprecated)
+Returns: ssml formated sub-string
+===============================================================
+"""
 def generate_chat_xml(input):
     return """<mstts:express-as style="chat">""" + input + "</mstts:express-as>"
 
+"""
+===============================================================
+Function: Generate a SSML formatted string
+Parameter(s):   input <- the text that will be injected into the
+                        ssml sub-template.
+                style <- array of [string, number] pairs that
+                        represent the tone and voice weight
+                        respectivly.
 
-# SSML Formating -> Sad (deprecated)
-def generate_sad_xml(input):
-    return generate_style(input, style="sad")
+Description:    This takes an input statement and accepted style 
+                and generates a SSML formatted sub-string to be 
+                injected into a SSML template.
 
-
-# SSML Formating, takes an input statemnt and accepted style and
-# generates XML query code to be injected into an SSML template.
-# I have added enough functionality to control the voice style
-# and voice weights. If you would like to add further functionality
-# see the SSML formating page for Azure voices.
+Returns: ssml formated sub-string
+===============================================================
+"""
 def generate_style(input, style):
     style = style.lower()
-    idx = np.where(ACCEPTED_TOKENS[:, 0] == style)
-    degree = ACCEPTED_TOKENS[idx][0][1]
+    idx = np.where(ACCEPTED_TONES[:, 0] == style)
+    degree = ACCEPTED_TONES[idx][0][1]
     return (
         f"""<mstts:express-as style="{style}" styledegree="{degree}">"""
         + input
         + "</mstts:express-as>\n\t\t\t"
     )
 
+"""
+===============================================================
+Function: Azure Text-to-Speech
+Parameter(s):   text <- a string to be spoken that contains
+                        the tags specified in ACCEPTED_TONES.
 
+Description: Takes an unformatted string with tone tags and uses 
+            Azure's Speech Service to generate audio of the
+            text provided.
+
+Returns: None
+===============================================================
+"""
 def azure_tts(text):
     ssml_string = build_ssml(text)
     # use the default speaker as audio output.
@@ -147,8 +186,21 @@ def azure_tts(text):
         if cancellation_details.reason == speechsdk.CancellationReason.Error:
             print("Error details: {}".format(cancellation_details.error_details))
 
+"""
+===============================================================
+Function: SSML Request builder
+Parameter(s):   text <- a string to be spoken that contains
+                        the tags specified in ACCEPTED_TONES.
 
-# SSML Query builder
+Description: Builds a SSML compliant request that will be sent to Azure's speech
+    services. It breaks down a tag rich string and sperates the text by tone. 
+    The seperated text is then converted into SSML compliant blocks to be inserted 
+    into a pre-made SSML template. To learn more about SSML see:
+    https://learn.microsoft.com/en-us/azure/cognitive-services/speech-service/speech-synthesis-markup
+
+Returns: SSML formatted string/request
+===============================================================
+"""
 def build_ssml(text):
     reading = False
     token = ""
@@ -168,7 +220,7 @@ def build_ssml(text):
             if not reading:
                 if char == "}":
                     token = token.strip()
-                    if token in ACCEPTED_TOKENS[:, 0]:
+                    if token in ACCEPTED_TONES[:, 0]:
                         print(f"Tone:{token}")
                         tone_buffer = token
                         reading = True
@@ -190,7 +242,7 @@ def build_ssml(text):
 
     ssml_message = ""
     for msg in messages:
-        if msg[0] in ACCEPTED_TOKENS[:, 0]:
+        if msg[0] in ACCEPTED_TONES[:, 0]:
             ssml_message += generate_style(msg[1], msg[0])
         else:
             ssml_message += generate_chat_xml(msg[1])
@@ -200,9 +252,25 @@ def build_ssml(text):
     )
     return ssml_template
 
+"""
+===============================================================
+Function: Prompt and Response
+Parameter(s): message_history <- an array of dicts that has the
+                history of the conversation.
 
+Description:    This takes a log of the conversation between the
+                user and sophie. It records the user and transcibes 
+                the audio recorded into an updated log. The log is 
+                passed to GPT to generate a response. Finnaly, it
+                is sent to the azure_tts function to generate the
+                audio response.
+
+Returns: An array of dicts that contains the updated history
+            of the conversation.
+===============================================================
+"""
 def prompt(message_history):
-    log = message_history
+    updated_message_history = message_history
     filename = "input.wav"
 
     print("Recording...")
@@ -218,20 +286,30 @@ def prompt(message_history):
     text = transcribe_audio_to_text(filename)
     print(f"Understood: {text}")
     if text != "" and text != None:
-        log.append({"role": "user", "content": text})
+        updated_message_history.append({"role": "user", "content": text})
 
         if text:
             # Generate Response
-            response = generate_chat_response(log)
+            response = generate_chat_response(updated_message_history)
             print("Requesting Audio...")
             azure_tts(response)
             print("Speaking.")
             print(f"Sophie: {response}")
-            log.append({"role": "assistant", "content": response})
-    return log
+            updated_message_history.append({"role": "assistant", "content": response})
+    return updated_message_history
 
-
+"""
+===============================================================
+Function: Main Loop
+Parameter(s): None
+Description:    Waits until the user starts the conversation
+                then continues to prompt the user until the
+                program is terminated.
+Returns: None
+===============================================================
+"""
 def main():
+    # Initializes the conversation with the prompts defined in sys_prompts
     message_hist = [
         {
             "role": "system",
@@ -242,6 +320,8 @@ def main():
             "content": sys_prompts[1],
         },
     ]
+
+    # Waits until the user says "hey sophie" to bein the conversation.
     while True:
         print("Say 'Hey Sophie!' to start recording your question")
         with sr.Microphone() as source:
@@ -255,13 +335,14 @@ def main():
             except Exception as e:
                 print("An error ocurred : {}".format(e))
                 print("Error on line {}".format(sys.exc_info()[-1].tb_lineno))
+
+    # The main conversation loop
     while True:
         try:
             message_hist = prompt(message_hist)
         except Exception as e:
             print("An error ocurred : {}".format(e))
             print("Error on line {}".format(sys.exc_info()[-1].tb_lineno))
-
 
 if __name__ == "__main__":
     main()
