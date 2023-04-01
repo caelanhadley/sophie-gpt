@@ -12,9 +12,9 @@
 
 3. Create OpenAI and Microsoft Azure accounts.
    - OpenAI account should be straightforward.
-   - The Azure account is more complicated, after creating an account you will needs to create a speech service.
+   - The Azure account is more complicated, after creating an account you will need to create a speech service.
    - This should create a resource group with a speech service in it.
-   - Go to the overview in your newly created speech resource to access your API key and region.<br>
+   - Go to the overview in your newly created speech service to access your API key and region.<br>
 4. After you have created your accounts you need to put your API keys into these three files:<br>
     ```key_azure``` your Microsoft Azure API key.<br>
     ```key_region``` the region your azure service is located. (example: "eastus")<br>
